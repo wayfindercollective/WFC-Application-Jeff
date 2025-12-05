@@ -106,8 +106,52 @@ body {
   border: 1px solid rgba(0, 243, 255, 0.2);
   border-radius: 20px;
   padding: 3rem;
-  box-shadow: var(--glow-cyan), 0 0 100px rgba(0, 0, 0, 0.8);
+  /* box-shadow will be set dynamically via inline styles */
   animation: fadeInUp 0.6s ease-out;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Bounce attention animation */
+.bounce-attention {
+  animation: bounceAttention 2s ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.form-container {
+  transition: transform 0.3s ease-out;
+}
+
+@keyframes bounceAttention {
+  0% {
+    transform: translateY(0);
+  }
+  10% {
+    transform: translateY(-20px);
+  }
+  20% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-15px);
+  }
+  40% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-5px);
+  }
+  80% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeInUp {
@@ -170,8 +214,18 @@ body {
   font-size: 2rem;
   font-weight: 600;
   line-height: 1.3;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   color: var(--text-primary);
+}
+
+.question-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-bottom: 3rem;
+  color: var(--text-secondary);
+  font-style: italic;
 }
 
 /* Form Inputs */
@@ -259,6 +313,14 @@ body {
 }
 
 /* Multiple Choice Options */
+.multi-select-hint {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-style: italic;
+}
+
 .options-container {
   display: flex;
   flex-direction: column;
@@ -347,6 +409,115 @@ body {
 
 .name-input {
   flex: 1;
+}
+
+/* Contact Info Container */
+.contact-info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contact-disclaimer {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  background: rgba(0, 243, 255, 0.05);
+  border-left: 3px solid var(--neon-cyan);
+  border-radius: 8px;
+}
+
+.contact-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contact-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.contact-input {
+  width: 100%;
+}
+
+.phone-input-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.contact-country-select {
+  flex: 0 0 auto;
+  min-width: 180px;
+  padding: 0.875rem 1rem;
+  background: rgba(10, 10, 15, 0.8);
+  border: 2px solid rgba(0, 243, 255, 0.3);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.contact-country-select:hover {
+  border-color: var(--neon-cyan);
+}
+
+.contact-country-select:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+}
+
+.phone-input-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.phone-prefix {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--neon-cyan);
+  font-weight: 500;
+  pointer-events: none;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.clickable-prefix {
+  pointer-events: auto !important;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+.clickable-prefix:hover {
+  background: rgba(0, 243, 255, 0.1);
+}
+
+.phone-number-input {
+  flex: 1;
+  padding-left: 3.5rem !important;
 }
 
 /* Navigation Buttons */
