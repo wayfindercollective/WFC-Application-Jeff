@@ -257,6 +257,9 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
             placeholder={question.placeholder}
             rows="6"
             autoFocus
+            style={{ borderColor: questionColor }}
+            onFocus={(e) => e.target.style.boxShadow = `0 0 10px ${questionColor}50`}
+            onBlur={(e) => e.target.style.boxShadow = 'none'}
           />
         )
 
@@ -329,6 +332,21 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
           </div>
         )
 
+      case 'text':
+        return (
+          <input
+            type="text"
+            className="form-input"
+            value={localValue}
+            onChange={(e) => handleChange(e.target.value)}
+            placeholder={question.placeholder}
+            autoFocus
+            style={{ borderColor: questionColor }}
+            onFocus={(e) => e.target.style.boxShadow = `0 0 10px ${questionColor}50`}
+            onBlur={(e) => e.target.style.boxShadow = 'none'}
+          />
+        )
+
       case 'email':
         return (
           <input
@@ -338,6 +356,9 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
             onChange={(e) => handleChange(e.target.value)}
             placeholder={question.placeholder}
             autoFocus
+            style={{ borderColor: questionColor }}
+            onFocus={(e) => e.target.style.boxShadow = `0 0 10px ${questionColor}50`}
+            onBlur={(e) => e.target.style.boxShadow = 'none'}
           />
         )
 
@@ -345,54 +366,113 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
         const phoneValue = typeof localValue === 'object' ? localValue : {}
         return (
           <div className="phone-container">
-            <select
-              className="country-select"
-              value={phoneValue.country || ''}
-              onChange={(e) => handleChange({ ...phoneValue, country: e.target.value })}
-            >
-              <option value="">Select Country</option>
-              <option value="US">🇺🇸 US (+1)</option>
-              <option value="UK">🇬🇧 UK (+44)</option>
-              <option value="CA">🇨🇦 CA (+1)</option>
-              <option value="AU">🇦🇺 AU (+61)</option>
-              <option value="DE">🇩🇪 DE (+49)</option>
-              <option value="FR">🇫🇷 FR (+33)</option>
-              <option value="IT">🇮🇹 IT (+39)</option>
-              <option value="ES">🇪🇸 ES (+34)</option>
-              <option value="NL">🇳🇱 NL (+31)</option>
-              <option value="BE">🇧🇪 BE (+32)</option>
-              <option value="CH">🇨🇭 CH (+41)</option>
-              <option value="AT">🇦🇹 AT (+43)</option>
-              <option value="SE">🇸🇪 SE (+46)</option>
-              <option value="NO">🇳🇴 NO (+47)</option>
-              <option value="DK">🇩🇰 DK (+45)</option>
-              <option value="FI">🇫🇮 FI (+358)</option>
-              <option value="PL">🇵🇱 PL (+48)</option>
-              <option value="PT">🇵🇹 PT (+351)</option>
-              <option value="IE">🇮🇪 IE (+353)</option>
-              <option value="GR">🇬🇷 GR (+30)</option>
-              <option value="CZ">🇨🇿 CZ (+420)</option>
-              <option value="HU">🇭🇺 HU (+36)</option>
-              <option value="RO">🇷🇴 RO (+40)</option>
-              <option value="BG">🇧🇬 BG (+359)</option>
-              <option value="HR">🇭🇷 HR (+385)</option>
-              <option value="SK">🇸🇰 SK (+421)</option>
-              <option value="SI">🇸🇮 SI (+386)</option>
-              <option value="EE">🇪🇪 EE (+372)</option>
-              <option value="LV">🇱🇻 LV (+371)</option>
-              <option value="LT">🇱🇹 LT (+370)</option>
-              <option value="LU">🇱🇺 LU (+352)</option>
-              <option value="MT">🇲🇹 MT (+356)</option>
-              <option value="CY">🇨🇾 CY (+357)</option>
-            </select>
-            <input
-              type="tel"
-              className="form-input phone-input"
-              value={phoneValue.phone || ''}
-              onChange={(e) => handleChange({ ...phoneValue, phone: e.target.value })}
-              placeholder="Phone number"
-              autoFocus
-            />
+            <div className="phone-input-row">
+              <select
+                className="country-select contact-country-select"
+                value={phoneValue.country || ''}
+                onChange={(e) => {
+                  const newCountry = e.target.value
+                  handleChange({ ...phoneValue, country: newCountry })
+                }}
+                style={{ borderColor: questionColor }}
+                onFocus={(e) => e.target.style.boxShadow = `0 0 10px ${questionColor}50`}
+                onBlur={(e) => e.target.style.boxShadow = 'none'}
+              >
+                <option value="">Select Country</option>
+                {Object.entries(countryCodes).map(([code, data]) => (
+                  <option key={code} value={code}>
+                    {data.flag} {data.name} ({data.code})
+                  </option>
+                ))}
+              </select>
+              <div className="phone-input-wrapper">
+                {phoneValue.country && countryCodes[phoneValue.country] && (
+                  <span 
+                    className="phone-prefix clickable-prefix"
+                    onClick={() => {
+                      // Clear country when prefix is clicked
+                      handleChange({ ...phoneValue, country: '', phone: phoneValue.phone || '' })
+                    }}
+                    title="Click to remove country selection"
+                    style={{ color: questionColor }}
+                  >
+                    {countryCodes[phoneValue.country].code}
+                  </span>
+                )}
+                <input
+                  type="tel"
+                  className="form-input contact-input phone-number-input"
+                  value={(() => {
+                    // If country is selected, show only the number part (prefix is shown separately)
+                    if (phoneValue.country && countryCodes[phoneValue.country]) {
+                      return phoneValue.phone || ''
+                    }
+                    // If no country selected, show the full input including + if present
+                    return phoneValue.phone || ''
+                  })()}
+                  onKeyDown={(e) => {
+                    // If backspace is pressed at the start of input and country is selected, clear country
+                    if (e.key === 'Backspace' && phoneValue.country && countryCodes[phoneValue.country]) {
+                      const input = e.target
+                      if (input.selectionStart === 0 && input.selectionEnd === 0) {
+                        // Cursor is at the beginning, clear the country
+                        e.preventDefault()
+                        handleChange({ ...phoneValue, country: '', phone: phoneValue.phone || '' })
+                      }
+                    }
+                  }}
+                  onChange={(e) => {
+                    const inputValue = e.target.value
+                    let newCountry = phoneValue.country
+                    let phoneValueInput = inputValue
+                    
+                    // Check if user is typing a number with + prefix
+                    const cleaned = inputValue.replace(/[^\d+]/g, '')
+                    
+                    // If country is selected and user deletes everything, clear country
+                    if (inputValue === '' && newCountry) {
+                      newCountry = ''
+                      phoneValueInput = ''
+                    } else if (cleaned.startsWith('+')) {
+                      // User typed a number starting with +
+                      const detected = detectCountryFromPhone(inputValue)
+                      
+                      if (detected) {
+                        // Country detected! Set it and extract the number part
+                        newCountry = detected
+                        const prefix = countryCodes[detected].code
+                        // Remove the prefix and any formatting, keep only digits
+                        phoneValueInput = cleaned.substring(prefix.length)
+                      } else {
+                        // + detected but country not recognized yet
+                        // Keep the full input including + so user can see what they're typing
+                        // Store the cleaned version (with +) so they can continue typing
+                        phoneValueInput = cleaned
+                        // Don't change country yet - wait for full match
+                      }
+                    } else if (inputValue && !newCountry) {
+                      // User typing without + and no country selected
+                      // Just store what they typed (digits)
+                      phoneValueInput = cleaned
+                    } else if (newCountry) {
+                      // Country already selected, user typing number
+                      // Remove any + they might have typed (since prefix is shown separately)
+                      phoneValueInput = cleaned.replace(/\+/g, '')
+                    } else {
+                      // No country, no +, just digits
+                      phoneValueInput = cleaned
+                    }
+                    
+                    handleChange({ ...phoneValue, country: newCountry, phone: phoneValueInput })
+                  }}
+                  placeholder={phoneValue.country ? "Phone number" : "e.g., +31 6 12345678"}
+                  style={{ borderColor: questionColor }}
+                  onFocus={(e) => e.target.style.boxShadow = `0 0 10px ${questionColor}50`}
+                  onBlur={(e) => e.target.style.boxShadow = 'none'}
+                  autoFocus
+                />
+              </div>
+            </div>
             {question.disclaimer && (
               <p className="phone-disclaimer">{question.disclaimer}</p>
             )}

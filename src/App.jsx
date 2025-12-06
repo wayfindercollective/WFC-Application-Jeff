@@ -94,15 +94,9 @@ const countryCodes = {
 const questions = [
   {
     id: 1,
-    type: 'multiple-choice',
-    question: "Which area do you want Jeff's help with most?",
-    options: [
-      'Influence / Charisma',
-      'Dating/Relationships',
-      'Career',
-      'Being more Assertive',
-      'Other'
-    ],
+    type: 'textarea',
+    question: "What area would you like Jeff's help with?",
+    placeholder: "Tell us about the area where you'd like Jeff's help...",
     required: true,
     fieldName: 'lifeArea'
   },
@@ -150,11 +144,27 @@ const questions = [
   },
   {
     id: 5,
-    type: 'contact-info',
-    question: 'Please add your contact information for the assessment with my team.',
-    disclaimer: 'By providing a telephone number and submitting this form you are consenting to be contacted by SMS, phone call, and/or WhatsApp. Message & data rates may apply. You can reply STOP to opt-out of further messaging.',
+    type: 'text',
+    question: "What's your first and last name?",
+    placeholder: 'First and last name',
     required: true,
-    fieldName: 'contactInfo'
+    fieldName: 'fullName'
+  },
+  {
+    id: 6,
+    type: 'email',
+    question: "What's your email address?",
+    placeholder: 'your.email@example.com',
+    required: true,
+    fieldName: 'email'
+  },
+  {
+    id: 7,
+    type: 'phone',
+    question: "What's your phone number?",
+    required: true,
+    fieldName: 'phone',
+    disclaimer: 'By providing a telephone number and submitting this form you are consenting to be contacted by SMS, phone call, and/or WhatsApp. Message & data rates may apply. You can reply STOP to opt-out of further messaging.'
   }
 ]
 
@@ -291,13 +301,16 @@ function App() {
 
   const handleSubmit = async () => {
     // Prepare data for N8N/Pipedrive
-    // Extract contact info data properly
-    const contactData = formData.contactInfo || {}
-    
-    // Split fullName into first and last name for Pipedrive compatibility
-    const nameParts = (contactData.fullName || '').trim().split(' ')
+    // Extract contact info from separate fields
+    const fullName = formData.fullName || ''
+    // Split fullName into first and last name
+    const nameParts = fullName.trim().split(' ')
     const firstName = nameParts[0] || ''
     const lastName = nameParts.slice(1).join(' ') || ''
+    const email = formData.email || ''
+    const phoneData = formData.phone || {}
+    const phone = phoneData.phone || ''
+    const phoneCountry = phoneData.country || ''
     
     // Format phone number for Pipedrive (add spaces for better recognition)
     const formatPhoneForPipedrive = (country, phone) => {
@@ -321,13 +334,13 @@ function App() {
     
     const submissionData = {
       // Contact Information (for Pipedrive Person)
-      name: contactData.fullName || '', // Full name
+      name: `${firstName} ${lastName}`.trim(), // Full name
       firstName: firstName,
       lastName: lastName,
-      email: contactData.email || '',
-      phone: contactData.phone || '', // Phone without country code
-      phoneCountry: contactData.country || '', // Country code (e.g., 'US', 'NL')
-      fullPhone: formatPhoneForPipedrive(contactData.country, contactData.phone), // Formatted phone for Pipedrive
+      email: email,
+      phone: phone, // Phone without country code
+      phoneCountry: phoneCountry, // Country code (e.g., 'US', 'NL')
+      fullPhone: formatPhoneForPipedrive(phoneCountry, phone), // Formatted phone for Pipedrive
       
       // Survey Answers (for Pipedrive Deal custom fields)
       helpArea: formData.lifeArea || '', // Alias for lifeArea
