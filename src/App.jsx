@@ -5,6 +5,14 @@ import './styles.css'
 
 const STORAGE_KEY = 'wfc-application-progress'
 
+// N8N Webhook URL - Replace with your actual webhook URL
+// In development, use proxy to avoid CORS issues
+// In production, use direct URL or environment variable
+const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 
+  (import.meta.env.DEV 
+    ? '/api/n8n/webhook-test/776bbd03-31ee-4092-aad8-5d91c668f7ae'
+    : 'https://wayfindercollective.app.n8n.cloud/webhook-test/776bbd03-31ee-4092-aad8-5d91c668f7ae')
+
 // Country code mapping
 const countryCodes = {
   // North America
@@ -115,11 +123,11 @@ const questions = [
   {
     id: 3,
     type: 'multiple-choice',
-    question: 'If you were given the right solution, would you be willing to invest in yourself to solve this?',
+    question: "If the solution makes sense for you, which statement describes you best?",
     options: [
-      "I'm ready to invest in myself today",
-      "I'd need to move funds around, but it's a priority",
-      "I'd prefer to get free resources first"
+      "I'd be ready to move forward today",
+      "I'd need to shift funds around, but if it's aligned I can make it work",
+      "I can't invest right now"
     ],
     required: true,
     fieldName: 'investmentReadiness'
@@ -174,10 +182,13 @@ function App() {
   }
 
   const savedState = loadSavedProgress()
-  const [currentSlide, setCurrentSlide] = useState(savedState.currentSlide)
-  const [formData, setFormData] = useState(savedState.formData)
-  const [isSubmitted, setIsSubmitted] = useState(savedState.isSubmitted)
+  // Don't restore submitted state from localStorage - always start fresh
+  const [currentSlide, setCurrentSlide] = useState(savedState.currentSlide || 0)
+  const [formData, setFormData] = useState(savedState.formData || {})
+  const [isSubmitted, setIsSubmitted] = useState(false) // Always start as false
   const [isBouncing, setIsBouncing] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
 
   // Save progress to localStorage whenever formData or currentSlide changes
   useEffect(() => {
@@ -283,27 +294,52 @@ function App() {
     // Extract contact info data properly
     const contactData = formData.contactInfo || {}
     
+    // Split fullName into first and last name for Pipedrive compatibility
+    const nameParts = (contactData.fullName || '').trim().split(' ')
+    const firstName = nameParts[0] || ''
+    const lastName = nameParts.slice(1).join(' ') || ''
+    
+    // Format phone number for Pipedrive (add spaces for better recognition)
+    const formatPhoneForPipedrive = (country, phone) => {
+      if (!country || !phone) return ''
+      const countryCode = countryCodes[country]?.code || ''
+      if (!countryCode) return phone
+      
+      // Format Dutch numbers: +31 6 12345678
+      if (country === 'NL' && phone.startsWith('6')) {
+        return `${countryCode} ${phone.substring(0, 1)} ${phone.substring(1)}`
+      }
+      
+      // Format US/Canada: +1 (555) 123-4567
+      if ((country === 'US' || country === 'CA') && phone.length === 10) {
+        return `${countryCode} (${phone.substring(0, 3)}) ${phone.substring(3, 6)}-${phone.substring(6)}`
+      }
+      
+      // Default: add space after country code for better recognition
+      return `${countryCode} ${phone}`
+    }
+    
     const submissionData = {
-      // Question 1: Life Area (single selected option)
-      lifeArea: formData.lifeArea || '',
-      
-      // Question 2: Priority Level
-      priority: formData.priority || '',
-      
-      // Question 3: Investment Readiness
-      investmentReadiness: formData.investmentReadiness || '',
-      
-      // Question 4: Income Range
-      income: formData.income || '',
-      
-      // Question 5: Contact Information (structured for Pipedrive)
-      fullName: contactData.fullName || '',
-      phone: contactData.phone || '',
-      phoneCountry: contactData.country || '',
-      fullPhone: contactData.country && contactData.phone 
-        ? `${countryCodes[contactData.country]?.code || ''}${contactData.phone}` 
-        : '',
+      // Contact Information (for Pipedrive Person)
+      name: contactData.fullName || '', // Full name
+      firstName: firstName,
+      lastName: lastName,
       email: contactData.email || '',
+      phone: contactData.phone || '', // Phone without country code
+      phoneCountry: contactData.country || '', // Country code (e.g., 'US', 'NL')
+      fullPhone: formatPhoneForPipedrive(contactData.country, contactData.phone), // Formatted phone for Pipedrive
+      
+      // Survey Answers (for Pipedrive Deal custom fields)
+      helpArea: formData.lifeArea || '', // Alias for lifeArea
+      lifeArea: formData.lifeArea || '', // Which area do you want Jeff's help with most?
+      
+      urgency: formData.priority || '', // Alias for priority
+      priority: formData.priority || '', // How important is it for you to change this, today?
+      
+      willingnessToInvest: formData.investmentReadiness || '', // Alias for investmentReadiness
+      investmentReadiness: formData.investmentReadiness || '', // If you were given the right solution, would you be willing to invest?
+      
+      income: formData.income || '', // What's your current income in USD ($), per month?
       
       // Metadata
       submittedAt: new Date().toISOString(),
@@ -312,21 +348,80 @@ function App() {
 
     console.log('Form Data for N8N/Pipedrive:', JSON.stringify(submissionData, null, 2))
     
-    // Here you would send to your N8N webhook endpoint
-    // Example:
-    // try {
-    //   const response = await fetch('YOUR_N8N_WEBHOOK_URL', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(submissionData)
-    //   })
-    //   if (!response.ok) throw new Error('Submission failed')
-    // } catch (error) {
-    //   console.error('Error submitting form:', error)
-    //   // Handle error appropriately
-    // }
+    setIsSubmitting(true)
+    setSubmitError(null)
 
-    setIsSubmitted(true)
+    try {
+      // Check if webhook URL is configured
+      if (!N8N_WEBHOOK_URL || N8N_WEBHOOK_URL === 'YOUR_N8N_WEBHOOK_URL_HERE') {
+        console.warn('N8N Webhook URL not configured. Using test mode.')
+        // In test mode, just log and proceed
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate network delay
+        setIsSubmitted(true)
+        return
+      }
+
+      // Send to N8N webhook
+      console.log('Sending to webhook:', N8N_WEBHOOK_URL)
+      console.log('Payload:', submissionData)
+      
+      const response = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData)
+      })
+
+      console.log('Response status:', response.status, response.statusText)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+
+      if (!response.ok) {
+        let errorText = ''
+        try {
+          errorText = await response.text()
+        } catch (e) {
+          errorText = 'Could not read error response'
+        }
+        console.error('Webhook error response:', errorText)
+        throw new Error(`Submission failed: ${response.status} ${response.statusText}. ${errorText.substring(0, 200)}`)
+      }
+
+      let result
+      try {
+        result = await response.json()
+      } catch (e) {
+        // Some webhooks return empty or non-JSON responses - that's OK
+        result = { success: true, message: 'Submitted successfully' }
+      }
+      console.log('N8N Webhook Response:', result)
+      
+      setIsSubmitted(true)
+      setIsSubmitting(false)
+    } catch (error) {
+      console.error('Error submitting form to N8N:', error)
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      })
+      
+      // More user-friendly error message
+      let errorMessage = 'Failed to submit form. '
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        errorMessage += 'Please check your internet connection and try again.'
+      } else if (error.message.includes('CORS')) {
+        errorMessage += 'Connection blocked. Please contact support.'
+      } else if (error.message.includes('404') || error.message.includes('not registered')) {
+        errorMessage += 'The webhook is not activated. Please activate it in n8n by clicking "Execute workflow" on the webhook node, then try again.'
+      } else {
+        errorMessage += error.message || 'Please try again.'
+      }
+      
+      setSubmitError(errorMessage)
+      setIsSubmitting(false)
+      // Don't set isSubmitted to true on error, so user can retry
+    }
   }
 
   if (isSubmitted) {
@@ -369,6 +464,37 @@ function App() {
         </div>
 
         <div className="slide-container">
+          {submitError && (
+            <div className="error-message" style={{ 
+              marginBottom: '20px',
+              padding: '20px',
+              backgroundColor: 'rgba(255, 0, 0, 0.1)',
+              border: '2px solid #ff4444',
+              borderRadius: '8px',
+              color: '#ff4444'
+            }}>
+              <p style={{ margin: '0 0 15px 0', fontSize: '16px', fontWeight: 'bold' }}>⚠️ {submitError}</p>
+              <button 
+                onClick={() => {
+                  setSubmitError(null)
+                  handleSubmit()
+                }}
+                className="retry-button"
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#ff4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                Retry Submission
+              </button>
+            </div>
+          )}
           <QuestionSlide
             question={currentQuestion}
             value={formData[currentQuestion.fieldName]}
@@ -379,6 +505,7 @@ function App() {
             isLast={currentSlide === questions.length - 1}
             totalQuestions={questions.length}
             questionIndex={currentSlide}
+            isSubmitting={isSubmitting}
           />
         </div>
       </div>
