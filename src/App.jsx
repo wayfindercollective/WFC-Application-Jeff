@@ -96,39 +96,52 @@ const questions = [
     id: 1,
     type: 'textarea',
     question: "What area would you like Jeff's help with?",
-    placeholder: "Tell us about the area where you'd like Jeff's help...",
+    placeholder: "In one or two sentences, what are you mainly looking to improve or get clarity on right now?",
     required: true,
     fieldName: 'lifeArea'
   },
   {
     id: 2,
     type: 'multiple-choice',
-    question: 'How ready are you to make real changes in this area right now?',
-    subtitle: '(Learning the priority level helps us understand your commitment)',
+    question: "When you commit to something important, how do you usually show up?",
     options: [
-      'Fully ready',
-      'Very ready',
-      'Somewhat ready',
-      'Not ready at all'
+      'I follow through fully',
+      "I'm committed but sometimes need accountability",
+      'I hesitate to act at first',
+      'I struggle to follow through'
+    ],
+    required: true,
+    fieldName: 'commitment'
+  },
+  {
+    id: 3,
+    type: 'multiple-choice',
+    question: 'How ready are you to make meaningful changes in this area right now?',
+    options: [
+      "I'm ready to get started now",
+      "I'm ready soon, just need clarity",
+      "I'm exploring options",
+      "I'm not ready yet"
     ],
     required: true,
     fieldName: 'readiness'
   },
   {
-    id: 3,
+    id: 4,
     type: 'multiple-choice',
-    question: "Which option describes your ability to invest in yourself right now?",
+    question: "Which option best describes your ability to invest in your own personal development at this moment?",
+    subtitle: "(This helps us understand your timing)",
     options: [
-      "I'm fully able to invest right now if it's the right fit",
-      "I can invest, but I may need some flexibility or planning",
-      "I want to invest, but I'm currently limited",
+      "I'm fully able to invest now if it's the right fit",
+      "I can invest but may need some planning",
+      "I want to invest but currently limited",
       "I'm not able to invest at this time"
     ],
     required: true,
     fieldName: 'investmentReadiness'
   },
   {
-    id: 4,
+    id: 5,
     type: 'multiple-choice',
     question: "What's your current income in USD ($), per month?",
     subtitle: '(Please be honest, as it helps us understand what solutions are available to you)',
@@ -144,7 +157,7 @@ const questions = [
     fieldName: 'income'
   },
   {
-    id: 5,
+    id: 6,
     type: 'text',
     question: "What's your first and last name?",
     placeholder: 'First and last name',
@@ -152,7 +165,7 @@ const questions = [
     fieldName: 'fullName'
   },
   {
-    id: 6,
+    id: 7,
     type: 'email',
     question: "What's your email address?",
     placeholder: 'your.email@example.com',
@@ -160,7 +173,7 @@ const questions = [
     fieldName: 'email'
   },
   {
-    id: 7,
+    id: 8,
     type: 'phone',
     question: "What's your phone number?",
     required: true,
@@ -194,6 +207,8 @@ function App() {
 
   const savedState = loadSavedProgress()
   // Don't restore submitted state from localStorage - always start fresh
+  // Always show intro on page load, don't persist it
+  const [hasSeenIntro, setHasSeenIntro] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(savedState.currentSlide || 0)
   const [formData, setFormData] = useState(savedState.formData || {})
   const [isSubmitted, setIsSubmitted] = useState(false) // Always start as false
@@ -202,6 +217,7 @@ function App() {
   const [submitError, setSubmitError] = useState(null)
 
   // Save progress to localStorage whenever formData or currentSlide changes
+  // Don't save hasSeenIntro - always show intro on page load
   useEffect(() => {
     if (!isSubmitted) {
       try {
@@ -344,17 +360,19 @@ function App() {
       fullPhone: formatPhoneForPipedrive(phoneCountry, phone), // Formatted phone for Pipedrive
       
       // Survey Answers (for Pipedrive Deal custom fields)
-      helpArea: formData.lifeArea || '', // Alias for lifeArea
-      lifeArea: formData.lifeArea || '', // Which area do you want Jeff's help with most?
+      commitment: formData.commitment || '', // When you commit to something important, how do you usually show up?
       
-      readiness: formData.readiness || '', // How ready are you to make real changes in this area right now?
+      readiness: formData.readiness || '', // How ready are you to make meaningful changes in this area right now?
       urgency: formData.readiness || '', // Alias for readiness (backward compatibility)
       priority: formData.readiness || '', // Alias for readiness (backward compatibility)
       
       willingnessToInvest: formData.investmentReadiness || '', // Alias for investmentReadiness
-      investmentReadiness: formData.investmentReadiness || '', // If you were given the right solution, would you be willing to invest?
+      investmentReadiness: formData.investmentReadiness || '', // Which option best describes your ability to invest in your own personal development at this moment?
       
       income: formData.income || '', // What's your current income in USD ($), per month?
+      
+      helpArea: formData.lifeArea || '', // Alias for lifeArea
+      lifeArea: formData.lifeArea || '', // What area would you like Jeff's help with?
       
       // Metadata
       submittedAt: new Date().toISOString(),
@@ -441,6 +459,42 @@ function App() {
 
   if (isSubmitted) {
     return <FinalScreen />
+  }
+
+  // Show intro screen first
+  if (!hasSeenIntro) {
+    const introColor = 'rgb(0, 243, 255)' // Cyan color
+    return (
+      <div className="app-container">
+        <div className="stars-background"></div>
+        <div className="grid-overlay"></div>
+        
+        <div 
+          className={`form-container ${isBouncing ? 'bounce-attention' : ''}`}
+          style={{
+            borderColor: 'rgba(0, 243, 255, 0.2)',
+            boxShadow: '0 0 20px rgba(0, 243, 255, 0.5), 0 0 40px rgba(0, 243, 255, 0.3), 0 0 100px rgba(0, 0, 0, 0.8)'
+          }}
+        >
+          <div className="slide-container">
+            <div className="intro-screen">
+              <h1 className="intro-title" style={{ color: introColor }}>
+                Important Notice
+              </h1>
+              <p className="intro-text">
+                To make sure we protect your time and ours, we review every application to make sure this process is a good match on both sides. Answer honestly so we know how to best support you.
+              </p>
+              <button
+                className="intro-button nav-button"
+                onClick={() => setHasSeenIntro(true)}
+              >
+                I Understand
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const currentQuestion = questions[currentSlide]
