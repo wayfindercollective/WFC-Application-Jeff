@@ -103,16 +103,16 @@ const questions = [
   {
     id: 2,
     type: 'multiple-choice',
-    question: 'How important is it for you to change this, today?',
+    question: 'How ready are you to make real changes in this area right now?',
     subtitle: '(Learning the priority level helps us understand your commitment)',
     options: [
-      'Extremely High Priority',
-      'High Priority',
-      'Medium Priority',
-      'Low Priority'
+      'Fully ready',
+      'Very ready',
+      'Somewhat ready',
+      'Not ready at all'
     ],
     required: true,
-    fieldName: 'priority'
+    fieldName: 'readiness'
   },
   {
     id: 3,
@@ -346,8 +346,9 @@ function App() {
       helpArea: formData.lifeArea || '', // Alias for lifeArea
       lifeArea: formData.lifeArea || '', // Which area do you want Jeff's help with most?
       
-      urgency: formData.priority || '', // Alias for priority
-      priority: formData.priority || '', // How important is it for you to change this, today?
+      readiness: formData.readiness || '', // How ready are you to make real changes in this area right now?
+      urgency: formData.readiness || '', // Alias for readiness (backward compatibility)
+      priority: formData.readiness || '', // Alias for readiness (backward compatibility)
       
       willingnessToInvest: formData.investmentReadiness || '', // Alias for investmentReadiness
       investmentReadiness: formData.investmentReadiness || '', // If you were given the right solution, would you be willing to invest?
