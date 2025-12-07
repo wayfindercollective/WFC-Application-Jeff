@@ -117,11 +117,12 @@ const questions = [
   {
     id: 3,
     type: 'multiple-choice',
-    question: "If the solution makes sense for you, which statement describes you best?",
+    question: "Which option describes your ability to invest in yourself right now?",
     options: [
-      "I'd be ready to move forward today",
-      "I'd need to shift funds around, but if it's aligned I can make it work",
-      "I can't invest right now"
+      "I'm fully able to invest right now if it's the right fit",
+      "I can invest, but I may need some flexibility or planning",
+      "I want to invest, but I'm currently limited",
+      "I'm not able to invest at this time"
     ],
     required: true,
     fieldName: 'investmentReadiness'
