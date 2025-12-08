@@ -657,9 +657,54 @@ body {
 }
 
 .final-message {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   line-height: 1.6;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  font-weight: 400;
+}
+
+.final-next-steps {
+  margin-top: 2.5rem;
+  text-align: left;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.next-steps-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+
+.next-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.next-steps-list li {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: var(--text-primary);
+  margin-bottom: 0.8rem;
+  padding-left: 1.5rem;
+  position: relative;
+  font-weight: 400;
+}
+
+.next-steps-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--neon-purple);
+  font-size: 1.5rem;
+  line-height: 1.4;
+  text-shadow: 0 0 10px rgba(176, 38, 255, 0.5);
 }
 
 /* Responsive Design */
@@ -687,6 +732,14 @@ body {
   }
 
   .final-message {
+    font-size: 1rem;
+  }
+
+  .next-steps-title {
+    font-size: 1.1rem;
+  }
+
+  .next-steps-list li {
     font-size: 1rem;
   }
 }

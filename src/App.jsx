@@ -360,19 +360,20 @@ function App() {
       fullPhone: formatPhoneForPipedrive(phoneCountry, phone), // Formatted phone for Pipedrive
       
       // Survey Answers (for Pipedrive Deal custom fields)
-      commitment: formData.commitment || '', // When you commit to something important, how do you usually show up?
+      commitment: formData.commitment || '', // Question 2: When you commit to something important, how do you usually show up?
+      commitmentLevel: formData.commitment || '', // Alias for commitment (for N8n workflow flexibility)
       
-      readiness: formData.readiness || '', // How ready are you to make meaningful changes in this area right now?
+      readiness: formData.readiness || '', // Question 3: How ready are you to make meaningful changes in this area right now?
       urgency: formData.readiness || '', // Alias for readiness (backward compatibility)
       priority: formData.readiness || '', // Alias for readiness (backward compatibility)
       
       willingnessToInvest: formData.investmentReadiness || '', // Alias for investmentReadiness
-      investmentReadiness: formData.investmentReadiness || '', // Which option best describes your ability to invest in your own personal development at this moment?
+      investmentReadiness: formData.investmentReadiness || '', // Question 4: Which option best describes your ability to invest in your own personal development at this moment?
       
-      income: formData.income || '', // What's your current income in USD ($), per month?
+      income: formData.income || '', // Question 5: What's your current income in USD ($), per month?
       
       helpArea: formData.lifeArea || '', // Alias for lifeArea
-      lifeArea: formData.lifeArea || '', // What area would you like Jeff's help with?
+      lifeArea: formData.lifeArea || '', // Question 1: What area would you like Jeff's help with?
       
       // Metadata
       submittedAt: new Date().toISOString(),

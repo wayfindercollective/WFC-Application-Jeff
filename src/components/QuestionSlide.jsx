@@ -161,18 +161,28 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
     if (!question.required) return true
     if (question.type === 'name') {
       const nameVal = typeof localValue === 'object' ? localValue : {}
-      return nameVal.firstName && nameVal.lastName
+      return nameVal.firstName?.trim() && nameVal.lastName?.trim()
     }
     if (question.type === 'phone') {
       const phoneVal = typeof localValue === 'object' ? localValue : {}
-      return phoneVal.phone && phoneVal.country
+      return phoneVal.phone?.trim() && phoneVal.country
     }
     if (question.type === 'contact-info') {
       const contactVal = typeof localValue === 'object' ? localValue : {}
-      return contactVal.fullName && contactVal.phone && contactVal.email && contactVal.country
+      return contactVal.fullName?.trim() && contactVal.phone?.trim() && contactVal.email?.trim() && contactVal.country
     }
     if (question.multiSelect) {
       return Array.isArray(localValue) && localValue.length > 0
+    }
+    // For text and textarea inputs, ensure there's at least one non-whitespace character
+    if (question.type === 'text' || question.type === 'textarea') {
+      return typeof localValue === 'string' && localValue.trim().length > 0
+    }
+    // For email inputs, ensure it's a valid email format (basic validation)
+    if (question.type === 'email') {
+      if (typeof localValue !== 'string' || !localValue.trim()) return false
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return emailRegex.test(localValue.trim())
     }
     return localValue !== '' && localValue !== null && localValue !== undefined
   }

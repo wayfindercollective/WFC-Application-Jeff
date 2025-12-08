@@ -10,8 +10,14 @@ const FinalScreen = () => {
         <div className="success-icon">✓</div>
         <h1 className="final-title">Thank You</h1>
         <p className="final-message">
-          Someone from our team will reach out in the next 24 hrs if you're eligible for an assessment.
+          Your application has been received and is now in our review queue.
         </p>
+        <div className="final-next-steps">
+          <ul className="next-steps-list">
+            <li>Jeff's team will review your answers shortly</li>
+            <li>If there's a potential fit, we'll reach out once your application is processed</li>
+          </ul>
+        </div>
       </div>
     </div>
   )
