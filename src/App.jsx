@@ -207,8 +207,6 @@ function App() {
 
   const savedState = loadSavedProgress()
   // Don't restore submitted state from localStorage - always start fresh
-  // Always show intro on page load, don't persist it
-  const [hasSeenIntro, setHasSeenIntro] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(savedState.currentSlide || 0)
   const [formData, setFormData] = useState(savedState.formData || {})
   const [isSubmitted, setIsSubmitted] = useState(false) // Always start as false
@@ -460,42 +458,6 @@ function App() {
 
   if (isSubmitted) {
     return <FinalScreen />
-  }
-
-  // Show intro screen first
-  if (!hasSeenIntro) {
-    const introColor = 'rgb(0, 243, 255)' // Cyan color
-    return (
-      <div className="app-container">
-        <div className="stars-background"></div>
-        <div className="grid-overlay"></div>
-        
-        <div 
-          className={`form-container ${isBouncing ? 'bounce-attention' : ''}`}
-          style={{
-            borderColor: 'rgba(0, 243, 255, 0.2)',
-            boxShadow: '0 0 20px rgba(0, 243, 255, 0.5), 0 0 40px rgba(0, 243, 255, 0.3), 0 0 100px rgba(0, 0, 0, 0.8)'
-          }}
-        >
-          <div className="slide-container">
-            <div className="intro-screen">
-              <h1 className="intro-title" style={{ color: introColor }}>
-                Important Notice
-              </h1>
-              <p className="intro-text">
-                To make sure we protect your time and ours, we review every application to make sure this process is a good match on both sides. Answer honestly so we know how to best support you.
-              </p>
-              <button
-                className="intro-button nav-button"
-                onClick={() => setHasSeenIntro(true)}
-              >
-                I Understand
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   const currentQuestion = questions[currentSlide]

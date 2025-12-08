@@ -742,4 +742,32 @@ body {
   .next-steps-list li {
     font-size: 1rem;
   }
+
+  /* Phone Input Mobile Fixes */
+  .phone-input-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .contact-country-select {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .phone-input-wrapper {
+    width: 100%;
+  }
+
+  .phone-number-input {
+    width: 100%;
+  }
+
+  .phone-container {
+    gap: 0.75rem;
+  }
+
+  .phone-disclaimer {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
 }
