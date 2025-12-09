@@ -8,10 +8,12 @@ const STORAGE_KEY = 'wfc-application-progress'
 // N8N Webhook URL - Replace with your actual webhook URL
 // In development, use proxy to avoid CORS issues
 // In production, use direct URL or environment variable
+// IMPORTANT: Use PRODUCTION URL (without -test) for automatic execution
+// Test URL requires manual clicking through nodes
 const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 
   (import.meta.env.DEV 
-    ? '/api/n8n/webhook-test/776bbd03-31ee-4092-aad8-5d91c668f7ae'
-    : 'https://wayfindercollective.app.n8n.cloud/webhook-test/776bbd03-31ee-4092-aad8-5d91c668f7ae')
+    ? '/api/n8n/webhook/776bbd03-31ee-4092-aad8-5d91c668f7ae'  // Production URL (no -test)
+    : 'https://wayfindercollective.app.n8n.cloud/webhook/776bbd03-31ee-4092-aad8-5d91c668f7ae')  // Production URL (no -test)
 
 // Country code mapping
 const countryCodes = {
