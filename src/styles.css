@@ -35,6 +35,9 @@ body {
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 /* Animated Stars Background */
@@ -106,6 +109,9 @@ body {
   border: 1px solid rgba(0, 243, 255, 0.2);
   border-radius: 20px;
   padding: 3rem;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow: visible;
   /* box-shadow will be set dynamically via inline styles */
   animation: fadeInUp 0.6s ease-out;
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
@@ -173,29 +179,191 @@ body {
   border-radius: 2px;
   margin-bottom: 2rem;
   overflow: hidden;
+  position: relative;
+  transition: opacity 0.3s ease-out;
+}
+
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgba(0, 243, 255, 0.1) 50%,
+    transparent 100%);
+  animation: progressPulse 2s ease-in-out infinite;
+  opacity: 0.3;
+}
+
+@keyframes progressPulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
   border-radius: 2px;
-  transition: width 0.3s ease;
+  transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s;
   box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    rgba(0, 243, 255, 0.3) 0%,
+    rgba(176, 38, 255, 0.3) 100%);
+  animation: progressShimmer 2s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+@keyframes progressShimmer {
+  0%, 100% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
 }
 
 /* Question Slide */
 .question-slide {
-  animation: slideIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+  /* No default animation - only animate when explicitly transitioning */
 }
 
-@keyframes slideIn {
+.question-content {
+  transition: opacity 0.35s ease-in-out, transform 0.35s ease-in-out;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.question-content.fade-out {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+/* Keep clicked option visible while rest fades out */
+.question-content.fade-out.keep-option-visible .option-button:not(.keep-visible) {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.question-content.fade-out.keep-option-visible .option-button.keep-visible {
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: auto;
+  transition: opacity 0.3s ease-out 0.2s, transform 0.3s ease-out 0.2s;
+}
+
+/* After delay, fade out the clicked option too */
+.question-content.fade-out:not(.keep-option-visible) .option-button.keep-visible {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-container {
+  position: relative;
+  overflow: visible;
+  min-height: 500px; /* Increased to prevent cut-off */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Entering slides - only animate when transitioning in */
+.question-slide.slide-forward {
+  z-index: 2;
+  animation: slideInForward 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.question-slide.slide-backward {
+  z-index: 2;
+  animation: slideInBackward 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Exiting slides - only animate when transitioning out */
+.question-slide.slide-out-forward {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 0;
+  animation: slideOutForward 0.35s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+}
+
+.question-slide.slide-out-backward {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 0;
+  animation: slideOutBackward 0.35s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+}
+
+@keyframes slideInForward {
   from {
     opacity: 0;
-    transform: translateX(20px);
+    transform: translateX(40px);
   }
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes slideInBackward {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutForward {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+}
+
+@keyframes slideOutBackward {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(40px);
   }
 }
 
@@ -264,6 +432,9 @@ body {
 /* Form Inputs */
 .input-wrapper {
   margin-bottom: 3rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
 }
 
 .form-input,
@@ -358,6 +529,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
 }
 
 .option-button {
@@ -386,6 +560,29 @@ body {
   background: rgba(0, 243, 255, 0.1);
   border-color: var(--neon-cyan);
   box-shadow: var(--glow-cyan);
+}
+
+.option-button.clicked {
+  background: rgba(0, 243, 255, 0.25) !important;
+  border-color: var(--neon-cyan) !important;
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.8), 0 0 50px rgba(0, 243, 255, 0.5), 0 0 75px rgba(0, 243, 255, 0.3) !important;
+  transform: scale(1.02);
+  animation: lightUp 0.5s ease-out;
+}
+
+@keyframes lightUp {
+  0% {
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(0, 243, 255, 1), 0 0 60px rgba(0, 243, 255, 0.7), 0 0 90px rgba(0, 243, 255, 0.4);
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(0, 243, 255, 0.8), 0 0 50px rgba(0, 243, 255, 0.5), 0 0 75px rgba(0, 243, 255, 0.3);
+    transform: scale(1.02);
+  }
 }
 
 .option-letter {
@@ -709,8 +906,26 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .app-container {
+    padding: 1rem;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
   .form-container {
     padding: 2rem 1.5rem;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .slide-container {
+    min-height: 450px;
+    overflow: visible;
+  }
+
+  .question-slide {
+    width: 100%;
+    overflow: visible;
   }
 
   .question-text {
@@ -769,5 +984,24 @@ body {
   .phone-disclaimer {
     font-size: 0.75rem;
     margin-top: 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    padding: 0.5rem;
+  }
+
+  .form-container {
+    padding: 1.5rem 1rem;
+    border-radius: 15px;
+  }
+
+  .slide-container {
+    min-height: 400px;
+  }
+
+  .question-text {
+    font-size: 1.25rem;
   }
 }
