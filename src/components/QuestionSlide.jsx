@@ -139,7 +139,7 @@ const extractPhoneWithoutPrefix = (phoneNumber, countryCode) => {
   return cleaned
 }
 
-const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isLast, questionIndex = 0, totalQuestions = 5 }) => {
+const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isLast, questionIndex = 0, totalQuestions = 5, slideDirection = 'forward', isTransitioning = false, isExiting = false }) => {
   const questionColor = getQuestionColor(questionIndex, totalQuestions)
   const getInitialValue = () => {
     if (question.type === 'phone' || question.type === 'name' || question.type === 'contact-info') {
@@ -152,10 +152,16 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
   }
 
   const [localValue, setLocalValue] = useState(getInitialValue())
+  const [clickedOption, setClickedOption] = useState(null)
+  const [isFadingOut, setIsFadingOut] = useState(false)
+  const [keepClickedOptionVisible, setKeepClickedOptionVisible] = useState(false)
 
   useEffect(() => {
     setLocalValue(getInitialValue())
-  }, [value, question.type])
+    setClickedOption(null) // Reset clicked option when question changes
+    setIsFadingOut(false) // Reset fade-out state when question changes
+    setKeepClickedOptionVisible(false) // Reset visibility state
+  }, [question.id, questionIndex]) // Reset on question change, not just value change
 
   const canProceed = () => {
     if (!question.required) return true
@@ -239,21 +245,69 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
         : [...currentArray, option]
       handleChange(newArray)
     } else {
-      handleChange(option)
-      // Auto-advance to next question after selecting an option (for single-select)
-      // For required single-select questions, any option selection is valid
-      if (question.required || option) {
-        setTimeout(() => {
-          onNext()
-        }, 150)
-      }
+      // Reset any existing transition states synchronously to ensure clean start
+      setIsFadingOut(false)
+      setKeepClickedOptionVisible(false)
+      setClickedOption(null)
+      
+      // Use requestAnimationFrame to ensure DOM updates before starting new transition
+      requestAnimationFrame(() => {
+        // Set clicked option for "light up" effect
+        setClickedOption(option)
+        handleChange(option)
+        // For required single-select questions, any option selection is valid
+        if (question.required || option) {
+          // Keep clicked option visible while rest fades out
+          setKeepClickedOptionVisible(true)
+          // Start fade-out animation for everything else
+          setIsFadingOut(true)
+          // After 0.2 seconds (200ms), start fading out the clicked option too
+          setTimeout(() => {
+            setKeepClickedOptionVisible(false)
+          }, 200) // Keep clicked option visible for 0.2 seconds longer
+          // Then after clicked option fade-out completes (200ms delay + 350ms fade), trigger next question
+          setTimeout(() => {
+            onNext()
+          }, 550) // Total: 200ms delay + 350ms fade-out duration
+        }
+      })
     }
   }
 
   const handleNextClick = () => {
     if (canProceed()) {
-      onNext()
+      // Reset any existing transition states synchronously first
+      setIsFadingOut(false)
+      setKeepClickedOptionVisible(false)
+      setClickedOption(null)
+      
+      // Use requestAnimationFrame to ensure DOM updates before starting transition
+      requestAnimationFrame(() => {
+        // Start fade-out animation
+        setIsFadingOut(true)
+        // After fade-out completes, trigger next question with small delay for smoothness
+        setTimeout(() => {
+          onNext()
+        }, 380) // Fade-out duration (350ms) + small buffer (30ms) for smooth transition
+      })
     }
+  }
+
+  const handleBackClick = () => {
+    // Reset any existing transition states synchronously first
+    setIsFadingOut(false)
+    setKeepClickedOptionVisible(false)
+    setClickedOption(null)
+    
+    // Use requestAnimationFrame to ensure DOM updates before starting transition
+    requestAnimationFrame(() => {
+      // Start fade-out animation
+      setIsFadingOut(true)
+      // After fade-out completes, trigger back navigation with small delay for smoothness
+      setTimeout(() => {
+        onBack()
+      }, 380) // Fade-out duration (350ms) + small buffer (30ms) for smooth transition
+    })
   }
 
   const renderInput = () => {
@@ -288,6 +342,7 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
                     key={num}
                     className={`scale-button ${localValue === num ? 'active' : ''}`}
                     onClick={() => handleScaleClick(num)}
+                    disabled={isFadingOut}
                     style={localValue === num ? {
                       borderColor: questionColor,
                       background: `${questionColor}1a`,
@@ -319,12 +374,15 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
               const isSelected = isMultiSelect
                 ? selectedValues.includes(option)
                 : localValue === option
+              const isClicked = clickedOption === option && !isMultiSelect
+              const shouldStayVisible = isClicked && keepClickedOptionVisible
               return (
                 <button
                   key={index}
-                  className={`option-button ${isSelected ? 'active' : ''}`}
+                  className={`option-button ${isSelected ? 'active' : ''} ${isClicked ? 'clicked' : ''} ${shouldStayVisible ? 'keep-visible' : ''}`}
                   onClick={() => handleOptionClick(option)}
-                  style={isSelected ? {
+                  disabled={isFadingOut && !shouldStayVisible}
+                  style={isSelected || isClicked ? {
                     borderColor: questionColor,
                     background: `${questionColor}1a`,
                     boxShadow: `0 0 15px ${questionColor}50`
@@ -662,39 +720,48 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
     }
   }
 
+  // Only apply slide direction classes when transitioning, not on initial render
+  const slideClass = isExiting 
+    ? `question-slide slide-out-${slideDirection}` 
+    : isTransitioning 
+      ? `question-slide slide-${slideDirection}`
+      : 'question-slide'
+  
   return (
-    <div className="question-slide" style={{ '--question-color': questionColor }}>
-      <div className="question-number" style={{ color: questionColor, textShadow: `0 0 10px ${questionColor}80` }}>
-        Question {question.id}
-      </div>
-      <h1 className="question-text" style={{ color: questionColor }}>
-        {question.question}
-      </h1>
-      {question.subtitle && (
-        <p className="question-subtitle">{question.subtitle}</p>
-      )}
-      
-      <div className="input-wrapper">
-        {renderInput()}
-      </div>
-
-      <div className="navigation-buttons">
-        {!isFirst && (
-          <button className="nav-button back-button" onClick={onBack}>
-            ← Back
-          </button>
+    <div className={slideClass} style={{ '--question-color': questionColor }}>
+      <div className={`question-content ${isFadingOut ? 'fade-out' : ''} ${keepClickedOptionVisible ? 'keep-option-visible' : ''}`}>
+        <div className="question-number" style={{ color: questionColor, textShadow: `0 0 10px ${questionColor}80` }}>
+          Question {question.id}
+        </div>
+        <h1 className="question-text" style={{ color: questionColor }}>
+          {question.question}
+        </h1>
+        {question.subtitle && (
+          <p className="question-subtitle">{question.subtitle}</p>
         )}
-        <button
-          className={`nav-button next-button ${!canProceed() ? 'disabled' : ''}`}
-          onClick={handleNextClick}
-          disabled={!canProceed()}
-          style={canProceed() ? {
-            borderColor: questionColor,
-            background: `linear-gradient(135deg, ${questionColor}33, ${questionColor}66)`
-          } : {}}
-        >
-          {isLast ? 'Submit' : 'Next →'}
-        </button>
+        
+        <div className="input-wrapper">
+          {renderInput()}
+        </div>
+
+        <div className="navigation-buttons">
+          {!isFirst && (
+            <button className="nav-button back-button" onClick={handleBackClick}>
+              ← Back
+            </button>
+          )}
+          <button
+            className={`nav-button next-button ${!canProceed() ? 'disabled' : ''}`}
+            onClick={handleNextClick}
+            disabled={!canProceed() || isFadingOut}
+            style={canProceed() ? {
+              borderColor: questionColor,
+              background: `linear-gradient(135deg, ${questionColor}33, ${questionColor}66)`
+            } : {}}
+          >
+            {isLast ? 'Submit' : 'Next →'}
+          </button>
+        </div>
       </div>
     </div>
   )

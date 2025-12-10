@@ -215,6 +215,11 @@ function App() {
   const [isBouncing, setIsBouncing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(null)
+  const [slideDirection, setSlideDirection] = useState('forward') // 'forward' or 'backward'
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [displaySlide, setDisplaySlide] = useState(savedState.currentSlide || 0)
+  const [prevSlide, setPrevSlide] = useState(null)
+  const [isContentFadedOut, setIsContentFadedOut] = useState(false)
 
   // Save progress to localStorage whenever formData or currentSlide changes
   // Don't save hasSeenIntro - always show intro on page load
@@ -304,7 +309,33 @@ function App() {
 
   const handleNext = () => {
     if (currentSlide < questions.length - 1) {
-      setCurrentSlide(currentSlide + 1)
+      // Note: fade-out is handled in QuestionSlide component
+      // When this function is called, fade-out has already completed
+      setSlideDirection('forward')
+      
+      // Immediately hide old slide and prepare for new slide
+      setIsContentFadedOut(true)
+      
+      // Small delay to ensure smooth transition (prevents abrupt changes)
+      setTimeout(() => {
+        // Use requestAnimationFrame to ensure DOM update happens before showing new slide
+        requestAnimationFrame(() => {
+          const newSlide = currentSlide + 1
+          setCurrentSlide(newSlide)
+          setDisplaySlide(newSlide)
+          setIsTransitioning(true)
+          
+          // Show new slide on next frame for smooth appearance
+          requestAnimationFrame(() => {
+            setIsContentFadedOut(false) // New slide will now appear with slide-in animation
+          })
+          
+          // Reset transition state after new slide animates in
+          setTimeout(() => {
+            setIsTransitioning(false)
+          }, 480) // Match slide-in animation duration (450ms) + small buffer
+        })
+      }, 20) // Small delay for smooth transition
     } else {
       handleSubmit()
     }
@@ -312,7 +343,33 @@ function App() {
 
   const handleBack = () => {
     if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1)
+      // Note: fade-out is handled in QuestionSlide component
+      // When this function is called, fade-out has already completed
+      setSlideDirection('backward')
+      
+      // Immediately hide old slide and prepare for new slide
+      setIsContentFadedOut(true)
+      
+      // Small delay to ensure smooth transition (prevents abrupt changes)
+      setTimeout(() => {
+        // Use requestAnimationFrame to ensure DOM update happens before showing new slide
+        requestAnimationFrame(() => {
+          const newSlide = currentSlide - 1
+          setCurrentSlide(newSlide)
+          setDisplaySlide(newSlide)
+          setIsTransitioning(true)
+          
+          // Show new slide on next frame for smooth appearance
+          requestAnimationFrame(() => {
+            setIsContentFadedOut(false) // New slide will now appear with slide-in animation
+          })
+          
+          // Reset transition state after new slide animates in
+          setTimeout(() => {
+            setIsTransitioning(false)
+          }, 480) // Match slide-in animation duration (450ms) + small buffer
+        })
+      }, 20) // Small delay for smooth transition
     }
   }
 
@@ -462,8 +519,8 @@ function App() {
     return <FinalScreen />
   }
 
-  const currentQuestion = questions[currentSlide]
-  const progress = ((currentSlide + 1) / questions.length) * 100
+  const currentQuestion = questions[displaySlide]
+  const progress = ((displaySlide + 1) / questions.length) * 100
 
   return (
     <div className="app-container">
@@ -474,7 +531,7 @@ function App() {
         className={`form-container ${isBouncing ? 'bounce-attention' : ''}`}
         style={{
           borderColor: (() => {
-            const progress = currentSlide / (questions.length - 1)
+            const progress = displaySlide / (questions.length - 1)
             const cyan = { r: 0, g: 243, b: 255 }
             const purple = { r: 176, g: 38, b: 255 }
             const r = Math.round(cyan.r + (purple.r - cyan.r) * progress)
@@ -483,7 +540,7 @@ function App() {
             return `rgba(${r}, ${g}, ${b}, 0.2)`
           })(),
           boxShadow: (() => {
-            const progress = currentSlide / (questions.length - 1)
+            const progress = displaySlide / (questions.length - 1)
             const cyan = { r: 0, g: 243, b: 255 }
             const purple = { r: 176, g: 38, b: 255 }
             const r = Math.round(cyan.r + (purple.r - cyan.r) * progress)
@@ -494,7 +551,13 @@ function App() {
         }}
       >
         <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+          <div 
+            className="progress-fill" 
+            style={{ 
+              width: `${progress}%`,
+              transition: 'width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s'
+            }}
+          ></div>
         </div>
 
         <div className="slide-container">
@@ -529,18 +592,41 @@ function App() {
               </button>
             </div>
           )}
-          <QuestionSlide
-            question={currentQuestion}
-            value={formData[currentQuestion.fieldName]}
-            onAnswer={handleAnswer}
-            onNext={handleNext}
-            onBack={handleBack}
-            isFirst={currentSlide === 0}
-            isLast={currentSlide === questions.length - 1}
-            totalQuestions={questions.length}
-            questionIndex={currentSlide}
-            isSubmitting={isSubmitting}
-          />
+          {!isContentFadedOut ? (
+            <QuestionSlide
+              key={displaySlide}
+              question={currentQuestion}
+              value={formData[currentQuestion.fieldName]}
+              onAnswer={handleAnswer}
+              onNext={handleNext}
+              onBack={handleBack}
+              isFirst={displaySlide === 0}
+              isLast={displaySlide === questions.length - 1}
+              totalQuestions={questions.length}
+              questionIndex={displaySlide}
+              isSubmitting={isSubmitting}
+              slideDirection={slideDirection}
+              isTransitioning={false}
+              isExiting={false}
+            />
+          ) : isTransitioning ? (
+            <QuestionSlide
+              key={displaySlide}
+              question={currentQuestion}
+              value={formData[currentQuestion.fieldName]}
+              onAnswer={handleAnswer}
+              onNext={handleNext}
+              onBack={handleBack}
+              isFirst={displaySlide === 0}
+              isLast={displaySlide === questions.length - 1}
+              totalQuestions={questions.length}
+              questionIndex={displaySlide}
+              isSubmitting={isSubmitting}
+              slideDirection={slideDirection}
+              isTransitioning={true}
+              isExiting={false}
+            />
+          ) : null}
         </div>
       </div>
     </div>
