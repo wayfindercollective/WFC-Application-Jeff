@@ -97,15 +97,16 @@ const questions = [
   {
     id: 1,
     type: 'textarea',
-    question: "What area would you like Jeff's help with?",
-    placeholder: "In one or two sentences, what are you mainly looking to improve or get clarity on right now?",
+    question: "What area would you like Jeff's help with",
+    placeholder: "What is the main loop you are stuck in that you want to break?",
     required: true,
     fieldName: 'lifeArea'
   },
   {
     id: 2,
     type: 'multiple-choice',
-    question: "When you commit to something important, how do you usually show up?",
+    question: "When it comes to important change, which description feels most like you right now",
+    questionNote: "(not the version you wish you were)",
     options: [
       'I follow through fully',
       "I'm committed but sometimes need accountability",
@@ -118,7 +119,7 @@ const questions = [
   {
     id: 3,
     type: 'multiple-choice',
-    question: 'How ready are you to make meaningful changes in this area right now?',
+    question: 'How ready are you to make meaningful changes in this area right now',
     options: [
       "I'm ready to get started now",
       "I'm ready soon, just need clarity",
@@ -131,8 +132,8 @@ const questions = [
   {
     id: 4,
     type: 'multiple-choice',
-    question: "Which option best describes your ability to invest in your own personal development at this moment?",
-    subtitle: "(This helps us understand your timing)",
+    question: "Which option best describes your ability to invest in your own personal development at this moment",
+    subtitle: '(This helps us understand your timing)',
     options: [
       "I'm fully able to invest now if it's the right fit",
       "I can invest but may need some planning",
@@ -145,8 +146,8 @@ const questions = [
   {
     id: 5,
     type: 'multiple-choice',
-    question: "What's your current income in USD ($), per month?",
-    subtitle: '(Please be honest, as it helps us understand what solutions are available to you)',
+    question: "What's your current income in USD ($), per month",
+    subtitle: '(We can not recommend the same path to someone at zero per month and someone at six figures. This is about reality, not status.)',
     options: [
       '$100k+ Per Month',
       '$10-100k Per Month',
@@ -161,7 +162,7 @@ const questions = [
   {
     id: 6,
     type: 'text',
-    question: "What's your first and last name?",
+    question: "What's your first and last name",
     placeholder: 'First and last name',
     required: true,
     fieldName: 'fullName'
@@ -169,7 +170,7 @@ const questions = [
   {
     id: 7,
     type: 'email',
-    question: "What's your email address?",
+    question: "What's your email address",
     placeholder: 'your.email@example.com',
     required: true,
     fieldName: 'email'
@@ -177,7 +178,7 @@ const questions = [
   {
     id: 8,
     type: 'phone',
-    question: "What's your phone number?",
+    question: "What's your phone number",
     required: true,
     fieldName: 'phone',
     disclaimer: 'By providing a telephone number and submitting this form you are consenting to be contacted by SMS, phone call, and/or WhatsApp. Message & data rates may apply. You can reply STOP to opt-out of further messaging.'

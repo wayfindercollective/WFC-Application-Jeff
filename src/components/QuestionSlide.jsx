@@ -734,7 +734,10 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
           Question {question.id}
         </div>
         <h1 className="question-text" style={{ color: questionColor }}>
-          {question.question}
+          {question.question}?
+          {question.questionNote && (
+            <span style={{ fontSize: '0.75em', fontWeight: 'normal' }}> {question.questionNote}</span>
+          )}
         </h1>
         {question.subtitle && (
           <p className="question-subtitle">{question.subtitle}</p>
