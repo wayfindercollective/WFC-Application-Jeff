@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { Analytics } from '@vercel/analytics/react'
 import QuestionSlide from './components/QuestionSlide'
 import FinalScreen from './components/FinalScreen'
 import './styles.css'
@@ -518,12 +517,7 @@ function App() {
   }
 
   if (isSubmitted) {
-    return (
-      <>
-        <FinalScreen />
-        <Analytics />
-      </>
-    )
+    return <FinalScreen />
   }
 
   const currentQuestion = questions[displaySlide]
@@ -636,7 +630,6 @@ function App() {
           ) : null}
         </div>
       </div>
-      <Analytics />
     </div>
   )
 }
