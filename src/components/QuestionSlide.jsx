@@ -736,11 +736,11 @@ const QuestionSlide = ({ question, value, onAnswer, onNext, onBack, isFirst, isL
         <h1 className="question-text" style={{ color: questionColor }}>
           {question.question}?
           {question.questionNote && (
-            <span style={{ fontSize: '0.75em', fontWeight: 'normal' }}> {question.questionNote}</span>
+            <span style={{ fontSize: '0.9em', fontWeight: 'normal', color: 'rgba(255, 255, 255, 0.95)' }}> {question.questionNote}</span>
           )}
         </h1>
         {question.subtitle && (
-          <p className="question-subtitle">{question.subtitle}</p>
+          <p className="question-subtitle" style={{ fontSize: '1.2rem', color: 'rgba(255, 255, 255, 0.95)' }}>{question.subtitle}</p>
         )}
         
         <div className="input-wrapper">
