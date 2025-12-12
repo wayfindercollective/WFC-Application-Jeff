@@ -2,7 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import QuestionSlide from './components/QuestionSlide'
 import FinalScreen from './components/FinalScreen'
+import SimpleAnalyticsDashboard from './components/SimpleAnalyticsDashboard'
 import './styles.css'
+import {
+  initAnalytics,
+  trackQuestionView,
+  trackQuestionCompleted,
+  trackQuestionBack,
+  trackFormSubmitted,
+  trackSubmissionError,
+  updateAnalyticsState
+} from './analytics/funnelAnalytics'
 
 const STORAGE_KEY = 'wfc-application-progress'
 
@@ -187,6 +197,12 @@ const questions = [
 ]
 
 function App() {
+  // Check if user wants to see analytics dashboard
+  const urlParams = new URLSearchParams(window.location.search)
+  if (urlParams.get('analytics') === 'true') {
+    return <SimpleAnalyticsDashboard />
+  }
+
   // Load saved progress from localStorage on mount
   const loadSavedProgress = () => {
     try {
@@ -245,6 +261,26 @@ function App() {
       localStorage.removeItem(STORAGE_KEY)
     }
   }, [isSubmitted])
+
+  // Initialize funnel analytics
+  useEffect(() => {
+    const cleanup = initAnalytics()
+    return cleanup
+  }, [])
+
+  // Track question views when slide changes
+  useEffect(() => {
+    if (!isSubmitted && currentSlide >= 0 && currentSlide < questions.length) {
+      const question = questions[currentSlide]
+      trackQuestionView(currentSlide, question.fieldName)
+      updateAnalyticsState(currentSlide, formData)
+    }
+  }, [currentSlide, isSubmitted])
+
+  // Update analytics state when form data changes
+  useEffect(() => {
+    updateAnalyticsState(currentSlide, formData)
+  }, [formData])
 
   // Inactivity detection - bounce animation after 10 seconds (repeating)
   useEffect(() => {
@@ -311,6 +347,10 @@ function App() {
 
   const handleNext = () => {
     if (currentSlide < questions.length - 1) {
+      // Track question completion before moving to next
+      const currentQuestion = questions[currentSlide]
+      trackQuestionCompleted(currentSlide, currentQuestion.fieldName)
+      
       // Note: fade-out is handled in QuestionSlide component
       // When this function is called, fade-out has already completed
       setSlideDirection('forward')
@@ -345,6 +385,9 @@ function App() {
 
   const handleBack = () => {
     if (currentSlide > 0) {
+      // Track going back
+      trackQuestionBack(currentSlide, currentSlide - 1)
+      
       // Note: fade-out is handled in QuestionSlide component
       // When this function is called, fade-out has already completed
       setSlideDirection('backward')
@@ -489,6 +532,9 @@ function App() {
       }
       console.log('N8N Webhook Response:', result)
       
+      // Track successful form submission
+      trackFormSubmitted(formData)
+      
       setIsSubmitted(true)
       setIsSubmitting(false)
     } catch (error) {
@@ -510,6 +556,9 @@ function App() {
       } else {
         errorMessage += error.message || 'Please try again.'
       }
+      
+      // Track submission error
+      trackSubmissionError(errorMessage, currentSlide)
       
       setSubmitError(errorMessage)
       setIsSubmitting(false)
