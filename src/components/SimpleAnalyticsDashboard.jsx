@@ -38,19 +38,24 @@ const SimpleAnalyticsDashboard = () => {
       
       // Always try n8n endpoint first for real-time data
       try {
+        console.log('Fetching analytics from:', ANALYTICS_ENDPOINT)
         const response = await fetch(ANALYTICS_ENDPOINT, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
           },
-          cache: 'no-cache' // Ensure fresh data
+          cache: 'no-cache', // Ensure fresh data
+          mode: 'cors' // Explicitly allow CORS
         })
         
+        console.log('Response status:', response.status, response.statusText)
+        
         if (!response.ok) {
-          throw new Error(`Failed to fetch analytics: ${response.status}`)
+          throw new Error(`Failed to fetch analytics: ${response.status} ${response.statusText}`)
         }
         
         const stats = await response.json()
+        console.log('Received analytics data:', stats)
         
         // Check if we got real data or just zeros
         if (stats.totalSessions === 0 && stats.completed === 0 && stats.questions?.every(q => q.views === 0)) {
@@ -68,15 +73,16 @@ const SimpleAnalyticsDashboard = () => {
         setLoading(false)
       } catch (err) {
         console.error('Analytics fetch error:', err)
+        console.error('Error details:', err.message)
         // Fallback to local analytics
         const localData = getLocalAnalytics()
         setData(localData)
         setDataSource('local')
         
         if (localData.totalSessions === 0) {
-          setError('⚠️ n8n endpoint not available and no local data - go through the form to generate analytics')
+          setError(`⚠️ n8n endpoint error: ${err.message}. No local data available.`)
         } else {
-          setError('⚠️ Using local analytics - n8n endpoint not available')
+          setError(`⚠️ n8n endpoint error: ${err.message}. Using local analytics.`)
         }
         setLoading(false)
       }
