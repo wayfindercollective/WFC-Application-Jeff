@@ -1005,3 +1005,465 @@ body {
     font-size: 1.25rem;
   }
 }
+
+/* ========================================
+   ANALYTICS DASHBOARD STYLES
+   ======================================== */
+
+.analytics-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f23 100%);
+  padding: 2rem;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+}
+
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+}
+
+.analytics-title-section h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #00f3ff, #b026ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.analytics-subtitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+}
+
+.analytics-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.time-range-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.time-range-select:hover {
+  border-color: rgba(0, 243, 255, 0.6);
+  background: rgba(0, 243, 255, 0.1);
+}
+
+.time-range-select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.view-toggle {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 243, 255, 0.3);
+}
+
+.view-toggle button {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.view-toggle button:hover {
+  background: rgba(0, 243, 255, 0.1);
+  color: #fff;
+}
+
+.view-toggle button.active {
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.3), rgba(176, 38, 255, 0.3));
+  color: #fff;
+}
+
+.close-dashboard {
+  background: rgba(255, 100, 100, 0.2);
+  border: 1px solid rgba(255, 100, 100, 0.4);
+  color: #ff6666;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-dashboard:hover {
+  background: rgba(255, 100, 100, 0.4);
+}
+
+/* Summary Cards */
+.analytics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.summary-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.summary-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
+}
+
+.summary-card.success {
+  border-color: rgba(0, 255, 150, 0.3);
+  background: rgba(0, 255, 150, 0.05);
+}
+
+.summary-card.highlight {
+  border-color: rgba(0, 243, 255, 0.4);
+  background: rgba(0, 243, 255, 0.08);
+}
+
+.summary-card.warning {
+  border-color: rgba(255, 200, 50, 0.3);
+  background: rgba(255, 200, 50, 0.05);
+}
+
+.summary-icon {
+  font-size: 2rem;
+}
+
+.summary-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.2rem;
+}
+
+/* Funnel Visualization */
+.funnel-visualization {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.funnel-visualization h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.funnel-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.funnel-step {
+  display: grid;
+  grid-template-columns: 180px 1fr 160px;
+  gap: 1rem;
+  align-items: center;
+}
+
+.funnel-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.question-num {
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(176, 38, 255, 0.2));
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #00f3ff;
+}
+
+.question-name {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.funnel-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.funnel-bar {
+  height: 36px;
+  background: linear-gradient(90deg, rgba(0, 243, 255, 0.6), rgba(0, 200, 255, 0.4));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  transition: all 0.3s;
+  min-width: 80px;
+}
+
+.funnel-bar.high-dropoff {
+  background: linear-gradient(90deg, rgba(255, 150, 50, 0.6), rgba(255, 100, 50, 0.4));
+}
+
+.funnel-bar.completed {
+  background: linear-gradient(90deg, rgba(0, 255, 150, 0.6), rgba(0, 200, 100, 0.4));
+}
+
+.funnel-count {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.dropoff-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dropoff-arrow {
+  color: rgba(255, 100, 100, 0.8);
+  font-size: 1rem;
+}
+
+.dropoff-value {
+  font-size: 0.85rem;
+  color: rgba(255, 150, 150, 0.9);
+}
+
+.dropoff-value.high {
+  color: #ff6666;
+  font-weight: 600;
+}
+
+.funnel-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.funnel-step.completion {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(0, 255, 150, 0.3);
+}
+
+/* Table View */
+.analytics-table-container {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.analytics-table-container h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.analytics-table th,
+.analytics-table td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.analytics-table th {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.analytics-table td {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+}
+
+.analytics-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analytics-table .high-dropoff-row {
+  background: rgba(255, 100, 50, 0.05);
+}
+
+.analytics-table .dropoff-cell {
+  color: rgba(255, 150, 150, 0.9);
+}
+
+.analytics-table .high-dropoff-rate {
+  color: #ff6666;
+  font-weight: 600;
+}
+
+/* Insights Section */
+.analytics-insights {
+  margin-bottom: 2rem;
+}
+
+.analytics-insights h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.insight-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.insight-card h3 {
+  font-size: 1rem;
+  color: #00f3ff;
+  margin-bottom: 0.6rem;
+}
+
+.insight-card p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.insight-card strong {
+  color: #fff;
+}
+
+/* Footer */
+.analytics-footer {
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+}
+
+.analytics-footer .footer-link {
+  margin-top: 0.5rem;
+  color: rgba(0, 243, 255, 0.6);
+}
+
+/* Loading State */
+.analytics-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1.5rem;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(0, 243, 255, 0.2);
+  border-top-color: #00f3ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Analytics Dashboard Mobile Responsive */
+@media (max-width: 768px) {
+  .analytics-dashboard {
+    padding: 1rem;
+  }
+
+  .analytics-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .analytics-controls {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .time-range-select {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .funnel-step {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+  }
+
+  .funnel-stats {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .analytics-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .summary-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
