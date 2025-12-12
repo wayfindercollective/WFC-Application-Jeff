@@ -93,8 +93,8 @@ const SimpleAnalyticsDashboard = () => {
     }
 
     loadAnalytics()
-    // Refresh every 5 seconds (faster for localhost)
-    const interval = setInterval(loadAnalytics, 5000)
+    // Refresh every 10 minutes (600,000ms)
+    const interval = setInterval(loadAnalytics, 600000)
     return () => clearInterval(interval)
   }, [])
 
