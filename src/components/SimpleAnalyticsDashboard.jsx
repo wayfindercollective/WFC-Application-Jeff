@@ -36,59 +36,49 @@ const SimpleAnalyticsDashboard = () => {
     const loadAnalytics = async () => {
       setLoading(true)
       
-      // In development, prefer local storage
-      // In production, try n8n endpoint first, fallback to local
-      const useLocalFirst = import.meta.env.DEV
-      
-      if (useLocalFirst) {
-        // Use local analytics
+      // Always try n8n endpoint first for real-time data
+      try {
+        const response = await fetch(ANALYTICS_ENDPOINT, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          cache: 'no-cache' // Ensure fresh data
+        })
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch analytics: ${response.status}`)
+        }
+        
+        const stats = await response.json()
+        
+        // Check if we got real data or just zeros
+        if (stats.totalSessions === 0 && stats.completed === 0 && stats.questions?.every(q => q.views === 0)) {
+          // Real endpoint but no data yet - fallback to local
+          const localData = getLocalAnalytics()
+          setData(localData)
+          setDataSource('local')
+          setError('No data in n8n yet - showing local analytics')
+        } else {
+          // Real data from n8n!
+          setData(stats)
+          setDataSource('n8n')
+          setError(null)
+        }
+        setLoading(false)
+      } catch (err) {
+        console.error('Analytics fetch error:', err)
+        // Fallback to local analytics
         const localData = getLocalAnalytics()
         setData(localData)
         setDataSource('local')
         
         if (localData.totalSessions === 0) {
-          setError('No data yet - go through the form to generate analytics events')
+          setError('⚠️ n8n endpoint not available and no local data - go through the form to generate analytics')
         } else {
-          setError(null)
+          setError('⚠️ Using local analytics - n8n endpoint not available')
         }
         setLoading(false)
-      } else {
-        // Try n8n endpoint first
-        try {
-          const response = await fetch(ANALYTICS_ENDPOINT)
-          if (!response.ok) {
-            throw new Error('Failed to fetch analytics')
-          }
-          const stats = await response.json()
-          
-          // Check if we got real data or just zeros
-          if (stats.totalSessions === 0 && stats.completed === 0 && stats.questions?.every(q => q.views === 0)) {
-            // Real endpoint but no data yet - fallback to local
-            const localData = getLocalAnalytics()
-            setData(localData)
-            setDataSource('local')
-            setError('No data in n8n yet - showing local analytics')
-          } else {
-            // Real data from n8n!
-            setData(stats)
-            setDataSource('n8n')
-            setError(null)
-          }
-          setLoading(false)
-        } catch (err) {
-          console.error('Analytics fetch error:', err)
-          // Fallback to local analytics
-          const localData = getLocalAnalytics()
-          setData(localData)
-          setDataSource('local')
-          
-          if (localData.totalSessions === 0) {
-            setError('⚠️ n8n endpoint not available and no local data - go through the form to generate analytics')
-          } else {
-            setError('⚠️ Using local analytics - n8n endpoint not available')
-          }
-          setLoading(false)
-        }
       }
     }
 
@@ -348,7 +338,7 @@ const SimpleAnalyticsDashboard = () => {
         </div>
 
         {/* Export & Reset Controls */}
-        {dataSource === 'local' && data && data.totalSessions > 0 && (
+        {data && data.totalSessions > 0 && (
           <div style={{
             display: 'flex',
             gap: '0.75rem',
